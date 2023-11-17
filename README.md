@@ -1,3 +1,2 @@
 # buscaminas_perron
-trabajo final final arqui de software
-AAAAAAAAAAAAAAAAAAAA
+Proyecto arquitectura de software: Juego buscaminas
