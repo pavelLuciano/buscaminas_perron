@@ -1,2 +1,2 @@
 # buscaminas_perron
-trabajo final arqui de software
+trabajo final final arqui de software
