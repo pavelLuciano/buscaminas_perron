@@ -1,5 +1,6 @@
 import random as rm
 
+ERROR = -1
 CERO = 0
 UNO = 1
 DOS = 2
@@ -21,8 +22,11 @@ class Cell:
     def set_item(self, item):
         self._item = item
 
+    def set_flag(self):
+        self._flag = not self._flag
+
     def set_num(self, numero):
-        if (self._item == BOMBA):
+        if (self._item == BOMB):
             return False
         else:
             self._item = numero
@@ -33,6 +37,9 @@ class Cell:
 
     def is_hide(self):
         return self._hide
+    
+    def is_flagged(self):
+        return self._flag
 
     def add_num(self):
         if self._item > SIETE:
@@ -41,26 +48,12 @@ class Cell:
             self._item += 1
             return True
 
-    def unhide(self):
+    def unhide_cell(self):
         self._hide = False
 
 
 
 class Board:
-
-    def place_bomb(self, coords):
-        x,y = coords
-        self.board_matrix[x][y].set_item(BOMB)
-        for i in [-1, 0,1]:
-            for j in [-1,0,1]:
-                if x+i >= 0 and x+i < self._size_x and y+j >= 0 and y+j < self._size_y :
-                    self.board_matrix[x+i][y+j].add_num()
-
-    def create_matriz(self):
-        self.board_matrix = [[Cell( CERO ) for _ in range (self._size_y)] for _ in range (self._size_x)]
-        for coords in self._list_bombs:
-            self.place_bomb(coords)
-
     def __init__(self, size_x, size_y, num_bombs, forbidden = [-1,0]):
         self._size_x = size_x
         self._size_y = size_y
@@ -74,14 +67,48 @@ class Board:
                 self._list_bombs.append([x,y])
         print(self._list_bombs)
         self.create_matriz()
-    
-    def left_click_on(self,coords):
+
+    def place_bomb(self, coords):
         x,y = coords
-        if x < 0 :
-            return False
-        else:
-            self.board_matrix[x][y].unhide()
-            return True
+        self.board_matrix[y][x].set_item(BOMB)
+        for i in [-1, 0,1]:
+            for j in [-1,0,1]:
+                if self.coords_are_in_matrix(x+j, y+i):
+                    self.board_matrix[y+i][x+j].add_num()
+
+    def create_matriz(self):
+        self.board_matrix = [[Cell( CERO ) for _ in range (self._size_x)] for _ in range (self._size_y)]
+        for coords in self._list_bombs:
+            self.place_bomb(coords)
     
     def get_size(self):
         return [self._size_x, self._size_y]
+
+    def unhide(self, x_coord, y_coord):
+        if not self.coords_are_in_matrix(x_coord, y_coord):
+            return ERROR
+        if self.board_matrix[y_coord][x_coord].is_hide():
+            self.board_matrix[y_coord][x_coord].unhide_cell()
+            if self.board_matrix[y_coord][x_coord].get_item() != CERO:
+                return self.board_matrix[y_coord][x_coord].get_item()
+            else:
+                self.unhide(x_coord, y_coord-1)
+                self.unhide(x_coord, y_coord+1)
+                self.unhide(x_coord+1, y_coord)
+                self.unhide(x_coord-1, y_coord)
+                return CERO
+        return ERROR
+    
+    def put_flag(self, x_coord, y_coord):
+        self.board_matrix[y_coord][x_coord].set_flag()
+
+    
+    def coords_are_in_matrix(self, x_coord, y_coord):
+        return (x_coord >= 0 and y_coord >= 0 and x_coord < self._size_x and y_coord < self._size_y)
+    
+
+            
+                
+
+            
+
