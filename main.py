@@ -1,4 +1,5 @@
 from turtle import pos
+from menu import Menu
 import os
 from board import Board
 from game_handler import Game_Master
@@ -7,14 +8,13 @@ import display
 
 def main_game():
 
-    tablero = Board(5, 5, 1)
-    for i in tablero.board_matrix:
-        for j in i:
-            print(j.get_item(), end = " ")
-        print("\n")
+    my_menu = Menu()
+    ancho, alto, num_bom = my_menu.get_params_from_dificulty()
 
-    my_game = Game_Master(10, 15, 20)
+    my_game = Game_Master(ancho, alto, num_bom)
     my_game.run()
+
+    
 
     
     #display.show_board(tablero)
