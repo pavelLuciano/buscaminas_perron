@@ -1,23 +1,28 @@
 import pygame
 import sys
+from data_base_handler import db_handler
 
+# Definir dificultades
 FACIL = 1
 MEDIO = 2
 DIFICIL = 3
+
+# Definir colores
+BLANCO = (255, 255, 255)
+AZUL = (0, 0, 255)
+ROJO = (255, 0, 0)
 
 class Menu:
 
     def __init__(self):
         # Inicializar la variable de dificultad_seleccionada
         self.dificultad_seleccionada = None
+        self.usuario = "Invitado"
+        self.data_base = db_handler()
 
+    def run_main_menu(self):
         # Inicializar Pygame
         pygame.init()
-
-        # Definir colores
-        BLANCO = (255, 255, 255)
-        AZUL = (0, 0, 255)
-        ROJO = (255, 0, 0)
 
         # Configuración de la pantalla
         ANCHO, ALTO = 800, 600
@@ -108,16 +113,19 @@ class Menu:
                         if facil_rect.collidepoint(x, y):
                             print("Seleccionada dificultad: Fácil")
                             self.dificultad_seleccionada = FACIL
+                            pygame.quit()
                             return
                             
                         elif intermedia_rect.collidepoint(x, y):
                             print("Seleccionada dificultad: Intermedia")
                             self.dificultad_seleccionada = MEDIO
+                            pygame.quit()
                             return
                             
                         elif dificil_rect.collidepoint(x, y):
                             print("Seleccionada dificultad: Difícil")
                             self.dificultad_seleccionada = DIFICIL
+                            pygame.quit()
                             return
                             
                         elif volver_rect.collidepoint(x, y):
@@ -125,9 +133,101 @@ class Menu:
             mostrar_menu()
             pygame.display.flip()
 
+    def run_victory_screen(self, victoria):
+
+        # Inicializar Pygame
+        pygame.init()
+
+        # Configuración de la pantalla
+        ANCHO, ALTO = 800, 600
+        pantalla = pygame.display.set_mode((ANCHO, ALTO))
+        pantalla.fill((255,255,255))
+
+        fuente = pygame.font.SysFont('unispacebold', 32)
+        if victoria:
+            pygame.display.set_caption("Victoria")
+        else:
+            pygame.display.set_caption("Derrota")
+
+        i = 0
+        for data in self.data_base.leer_csv(5):
+            if data[1]:
+                victoria = "WIN"
+            else :
+                victoria = "LOSE"
+            db_str = fuente.render(f"{data[0]} | {victoria} | {data[2]} | {data[3]}% | {data[4]} segs.", True, (0,0,0))
+            pantalla.blit(db_str, (10, 10 + i))
+            i += 20
+
+        salir_rect = pygame.Rect(ANCHO // 2 + 100, ALTO - 100 , 200, 50)
+        play_again_rect = pygame.Rect(ANCHO // 2 - 300, ALTO - 100, 200, 50)
+        pygame.draw.rect(pantalla, ROJO, salir_rect)
+        pygame.draw.rect(pantalla, AZUL, play_again_rect)
+        
+        pygame.display.update()
+        
+        while True:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+
+                    if salir_rect.collidepoint(x, y):
+                        print("Salir")
+                        pygame.quit()
+                        sys.exit()
+                    elif play_again_rect.collidepoint(x, y):
+                        print("Jugar otra vez")
+                        return True
+
+    def get_user(self):
+        pygame.init()
+
+        # Configuración de la ventana
+        width, height = 400, 100
+        screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption('Ingrese Usuario')
+
+        # Configuración de fuentes y texto
+        font = pygame.font.Font(None, 36)
+        text = ""
+        text_color = (255, 255, 255)
+
+        clock = pygame.time.Clock()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        print("Usuario ingresado:", text)
+                        self.usuario = text
+                        return
+                    elif event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+            screen.fill((0, 0, 0))
+
+            # Renderizar y mostrar el texto actual
+            input_text = font.render(text, True, text_color)
+            screen.blit(input_text, (10, 10))
+            pygame.display.flip()
+            clock.tick(30)
+
+
+                
+
+
+
+
     def get_params_from_dificulty(self):
         if self.dificultad_seleccionada == FACIL:
-            return (10, 10, 15)
+            return (10, 10, 10)
         if self.dificultad_seleccionada == DIFICIL:
             return (30, 20, 40)
         return (20, 15, 25)

@@ -106,6 +106,18 @@ class Board:
     def coords_are_in_matrix(self, x_coord, y_coord):
         return (x_coord >= 0 and y_coord >= 0 and x_coord < self._size_x and y_coord < self._size_y)
     
+    def is_clean(self):
+        acum = 0
+        for line in self.board_matrix:
+            for cell in line:
+                if cell.is_flagged():
+                    if cell.get_item() != BOMB:
+                        return False
+                    else:
+                        acum = acum + 1
+        
+        return acum == len(self._list_bombs)                
+        
 
             
                 

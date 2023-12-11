@@ -1,5 +1,30 @@
 import csv
 
+class db_handler:
+
+    def __init__(self):
+        self.db_ruta = "DB/DB.csv"
+
+    def leer_csv(self,k):
+        datos = []
+        with open(self.db_ruta, 'r', newline='') as archivo_csv:
+            lector_csv = csv.reader(archivo_csv)
+
+            # Saltar la primera línea (encabezados)
+            next(lector_csv, None)
+
+            # Leer las líneas restantes
+            for linea in lector_csv:
+                datos.append(linea)
+            # Ordenar los datos por puntaje (última columna)
+            datos_ordenados = sorted(datos, key=lambda x: int(x[-1]), reverse=True)
+
+            # Devolver el top K de filas
+        return datos_ordenados[:k]
+            
+
+
+
 def ingresar_datos():
     # Solicitar al usuario que ingrese los datos
     nombre = input("Ingrese el nombre del jugador: ")
