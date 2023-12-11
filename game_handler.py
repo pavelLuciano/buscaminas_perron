@@ -13,9 +13,13 @@ class Game_Master(Input_Handler):
         self._size_x = size_x
         self._size_y = size_y
         self._displayer = Displayer(size_x, size_y)
+        
 
     def run(self):
         
+        reloj = pg.time.Clock()
+        tiempo = 0
+    
         
         self._displayer.fake_matrix(self._size_x, self._size_y)
         coords, _ = self.input_getter.wait_for_mouse_button_event()
@@ -27,11 +31,15 @@ class Game_Master(Input_Handler):
         self._playing = True
         self._displayer.show_board(self._game_board.board_matrix)
         while self._playing:
+
+            dt = reloj.tick(10)/1000
+            tiempo += dt
+
             tile_coords = self.wait_for_click()
             self._displayer.show_board(self._game_board.board_matrix)
 
         self.input_getter.wait_for_mouse_button_event()
-        return self.game_over
+        return self.game_over, tiempo
 
 
 

@@ -133,7 +133,7 @@ class Menu:
             mostrar_menu()
             pygame.display.flip()
 
-    def run_victory_screen(self, victoria):
+    def run_victory_screen(self, victoria, tiempo):
 
         # Inicializar Pygame
         pygame.init()
@@ -152,12 +152,18 @@ class Menu:
         i = 0
         for data in self.data_base.leer_csv(5):
             if data[1]:
-                victoria = "WIN"
+                aux = "WIN"
             else :
-                victoria = "LOSE"
-            db_str = fuente.render(f"{data[0]} | {victoria} | {data[2]} | {data[3]}% | {data[4]} segs.", True, (0,0,0))
+                aux = "LOSE"
+            db_str = fuente.render(f"{data[0]} | {aux} | {data[2]} | {data[3]}% | {data[4]} segs.", True, (0,0,0))
             pantalla.blit(db_str, (10, 10 + i))
             i += 20
+        if victoria:
+            aux = "WIN"
+        else:
+            aux = "LOSE"
+        str_data = fuente.render(f"Your game data: \n {self.usuario} | {aux} | Dificultad | porcentaje | {tiempo:.0f}segs.",True, (0,0,0))
+        pantalla.blit(str_data, (10, 10 + 2*i))
 
         salir_rect = pygame.Rect(ANCHO // 2 + 100, ALTO - 100 , 200, 50)
         play_again_rect = pygame.Rect(ANCHO // 2 - 300, ALTO - 100, 200, 50)
@@ -218,10 +224,6 @@ class Menu:
             screen.blit(input_text, (10, 10))
             pygame.display.flip()
             clock.tick(30)
-
-
-                
-
 
 
 
